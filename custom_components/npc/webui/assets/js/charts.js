@@ -431,7 +431,10 @@ class ChartManager {
     }
 
     // Tạo biểu đồ so sánh sản lượng giữa các năm
-    createComparisonChart(allAccountsData, yearsToCompare = [], accountMode = 'all') {
+    createComparisonChart(allAccountsData, yearsToCompare = [], accountMode = 'all', options = {}) {
+        const chartType = options.type || 'bar';
+        const showLabels = options.showLabels !== undefined ? options.showLabels : false;
+
         if (this.comparisonChart) {
             this.comparisonChart.destroy();
         }
@@ -465,27 +468,37 @@ class ChartManager {
         const labels = Array.from({ length: 12 }, (_, i) => `T${i + 1}`);
         const datasets = [];
 
-        // Extended color palette
-        const colorPalette = [
+        // Color palettes per meter to group them visually
+        const meterPalettes = [
+            // Palette 1: Yellow/Orange/Gold
+            [
+                { bg: 'rgba(255, 193, 7, 0.75)', border: 'rgba(255, 193, 7, 1)' },
+                { bg: 'rgba(255, 152, 0, 0.75)', border: 'rgba(255, 152, 0, 1)' },
+                { bg: 'rgba(255, 87, 34, 0.75)', border: 'rgba(255, 87, 34, 1)' }
+            ],
+            // Palette 2: Blue/Cyan/Teal
+            [
+                { bg: 'rgba(0, 188, 212, 0.75)', border: 'rgba(0, 188, 212, 1)' },
+                { bg: 'rgba(63, 136, 255, 0.75)', border: 'rgba(63, 136, 255, 1)' },
+                { bg: 'rgba(0, 230, 118, 0.75)', border: 'rgba(0, 230, 118, 1)' }
+            ],
+            // Palette 3: Purple/Pink/Magenta
+            [
+                { bg: 'rgba(233, 97, 171, 0.75)', border: 'rgba(233, 97, 171, 1)' },
+                { bg: 'rgba(156, 39, 176, 0.75)', border: 'rgba(156, 39, 176, 1)' },
+                { bg: 'rgba(244, 67, 54, 0.75)', border: 'rgba(244, 67, 54, 1)' }
+            ]
+        ];
+
+        const defaultPalette = [
             { bg: 'rgba(255, 193, 7, 0.75)', border: 'rgba(255, 193, 7, 1)' },
             { bg: 'rgba(0, 188, 212, 0.75)', border: 'rgba(0, 188, 212, 1)' },
             { bg: 'rgba(233, 97, 171, 0.75)', border: 'rgba(233, 97, 171, 1)' },
-            { bg: 'rgba(76, 175, 80, 0.75)', border: 'rgba(76, 175, 80, 1)' },
-            { bg: 'rgba(156, 39, 176, 0.75)', border: 'rgba(156, 39, 176, 1)' },
-            { bg: 'rgba(255, 87, 34, 0.75)', border: 'rgba(255, 87, 34, 1)' },
-            { bg: 'rgba(63, 136, 255, 0.75)', border: 'rgba(63, 136, 255, 1)' },
-            { bg: 'rgba(255, 152, 0, 0.75)', border: 'rgba(255, 152, 0, 1)' },
-            { bg: 'rgba(0, 230, 118, 0.75)', border: 'rgba(0, 230, 118, 1)' },
-            { bg: 'rgba(244, 67, 54, 0.75)', border: 'rgba(244, 67, 54, 1)' },
+            { bg: 'rgba(76, 175, 80, 0.75)', border: 'rgba(76, 175, 80, 1)' }
         ];
 
         if (accountMode === 'multi') {
-            // ── MULTI MODE: Each meter × each year = 1 column ──────────────────────
-            // Group bars by meter (not by year stack) so meters are side-by-side
-            // Each dataset = one (meter, year) combination
-            // Use barThickness + a custom categoryPercentage to make same-meter bars
-            // appear clustered together.
-            let colorIndex = 0;
+            let meterIndex = 0;
             const accounts = Object.keys(allAccountsData).filter(id =>
                 allAccountsData[id]?.monthly?.SanLuong?.length > 0
             );
@@ -494,10 +507,12 @@ class ChartManager {
                 const accData = allAccountsData[accId];
                 if (!accData?.monthly?.SanLuong) return;
 
-                // Short meter label (last 6 chars to keep it readable)
-                const shortId = accId.length > 10 ? '…' + accId.slice(-8) : accId;
+                // Short meter label (last 4 chars)
+                const shortId = accId.length > 4 ? '...' + accId.slice(-4) : accId;
+                const palette = meterPalettes[meterIndex % meterPalettes.length];
+                meterIndex++;
 
-                effectiveYears.forEach(year => {
+                effectiveYears.forEach((year, yIdx) => {
                     const yearData = new Array(12).fill(null);
                     accData.monthly.SanLuong.forEach(item => {
                         const itemYear = parseInt(item.Năm);
@@ -508,17 +523,18 @@ class ChartManager {
                         }
                     });
 
-                    const color = colorPalette[colorIndex % colorPalette.length];
-                    colorIndex++;
+                    const color = palette[yIdx % palette.length];
 
                     datasets.push({
-                        label: `${shortId} (${year})`,
+                        label: `${shortId} ('${year.toString().slice(-2)})`,
                         data: yearData,
                         backgroundColor: color.bg,
                         borderColor: color.border,
                         borderWidth: 1,
                         borderRadius: 3,
-                        // No stack → grouped side-by-side
+                        tension: 0.4, // For line chart
+                        pointRadius: 3,
+                        pointHoverRadius: 5
                     });
                 });
             });
@@ -542,7 +558,7 @@ class ChartManager {
                     });
                 });
 
-                const color = colorPalette[index % colorPalette.length];
+                const color = defaultPalette[index % defaultPalette.length];
                 datasets.push({
                     label: `Năm ${year}`,
                     data: yearData,
@@ -550,6 +566,10 @@ class ChartManager {
                     borderColor: color.border,
                     borderWidth: 1,
                     borderRadius: 4,
+                    tension: 0.4, // For line chart
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    fill: chartType === 'line' ? false : true
                 });
             });
         }
@@ -558,12 +578,13 @@ class ChartManager {
         const themeColors = this.getCurrentThemeColors();
 
         this.comparisonChart = new Chart(ctx, {
-            type: 'bar',
+            type: chartType,
             data: { labels, datasets },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                interaction: {
+                categoryPercentage: 0.85, // Increase space between months
+                barPercentage: 0.9,
                     mode: 'index',
                     intersect: false
                 },
@@ -614,12 +635,16 @@ class ChartManager {
                     // ── Show value labels on top of every bar ────────────────────────
                     datalabels: {
                         display: function(context) {
+                            // Only show if explicitly enabled OR if it's a simple chart (few series)
+                            if (!showLabels) {
+                                if (datasets.length > 3) return false;
+                            }
                             return context.dataset.data[context.dataIndex] > 0;
                         },
                         anchor: 'end',
                         align: 'end',
                         offset: 2,
-                        rotation: accountMode === 'multi' ? -90 : 0,
+                        rotation: chartType === 'bar' && accountMode === 'multi' ? -90 : 0,
                         color: themeColors.axisColor || themeColors.textColor,
                         font: {
                             size: accountMode === 'multi' ? (isMobile ? 7 : 9) : (isMobile ? 8 : 10),
