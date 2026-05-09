@@ -112,24 +112,44 @@ class ChartManager {
                         borderColor: borderColors,
                         borderWidth: 1,
                         yAxisID: 'y1',
-                        datalabels: { display: false }
+                        datalabels: {
+                            display: true,
+                            anchor: 'end',
+                            align: 'top',
+                            offset: 4,
+                            color: this.getCurrentThemeColors().textColor,
+                            font: { weight: 'bold', size: isMobile ? 9 : 10 },
+                            formatter: (val) => Math.round(val)
+                        }
                     },
                     {
+                        type: 'line',
                         label: 'Hóa đơn (VND)',
                         data: costData,
-                        backgroundColor: costData.map((_, index) =>
-                            currentPeriodIndexes.has(index)
-                                ? 'rgba(255, 152, 0, 0.8)'
-                                : 'rgba(233, 97, 171, 0.8)'
+                        fill: true,
+                        backgroundColor: 'rgba(233, 97, 171, 0.1)',
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: costData.map((_, index) =>
+                            currentPeriodIndexes.has(index) ? '#ff9800' : '#e961ab'
                         ),
                         borderColor: costData.map((_, index) =>
                             currentPeriodIndexes.has(index)
                                 ? 'rgba(255, 152, 0, 1)'
                                 : 'rgba(233, 97, 171, 1)'
                         ),
-                        borderWidth: 1,
+                        borderWidth: 2,
                         yAxisID: 'y2',
-                        datalabels: { display: false }
+                        datalabels: {
+                            display: true,
+                            anchor: 'end',
+                            align: 'top',
+                            offset: 4,
+                            color: '#e961ab',
+                            font: { weight: 'bold', size: isMobile ? 9 : 10 },
+                            formatter: (val) => val >= 1000 ? (val/1000).toFixed(0) + 'k' : val
+                        }
                     }
                 ]
             }, options: {
@@ -236,7 +256,8 @@ class ChartManager {
                 maintainAspectRatio: false,
                 responsive: true,
                 onClick: onClickCallback
-            }
+            },
+            plugins: typeof ChartDataLabels !== 'undefined' ? [ChartDataLabels] : []
         });
 
         return this.monthlyChart;
