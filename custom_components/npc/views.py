@@ -10,7 +10,7 @@ from aiohttp import web
 from homeassistant.components.http import HomeAssistantView
 
 from .const import DOMAIN, CONF_CUSTOMER_ID
-from .utils import layhoadon, laykhoangtieuthukynay, lay_ky_hien_tai, get_db_conn
+from .utils import layhoadon, laykhoangtieuthukynay, lay_ky_hien_tai, get_db_conn, tinhtiendien
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -193,8 +193,15 @@ class EVNMonthlyDataView(HomeAssistantView):
                     
                     # Safely convert
                     thang_int = int(thang) if thang is not None else 0
-                    tien_dien_float = float(tien_dien) if tien_dien is not None else 0
                     san_luong_float = float(san_luong) if san_luong is not None else 0
+                    if tien_dien is not None:
+                        tien_dien_float = float(tien_dien)
+                    elif san_luong_float > 0:
+                        # Fallback: ước tính theo biểu giá bậc thang khi DB không có hóa đơn
+                        estimated, _ = tinhtiendien(san_luong_float)
+                        tien_dien_float = float(estimated) if estimated else 0
+                    else:
+                        tien_dien_float = 0
                     nam_int = int(nam) if nam is not None else datetime.now().year
                     
                     monthly_data["SanLuong"].append({
