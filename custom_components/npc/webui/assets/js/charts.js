@@ -585,6 +585,7 @@ class ChartManager {
                 maintainAspectRatio: false,
                 categoryPercentage: 0.85, // Increase space between months
                 barPercentage: 0.9,
+                interaction: {
                     mode: 'index',
                     intersect: false
                 },
