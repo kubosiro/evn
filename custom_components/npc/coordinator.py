@@ -329,11 +329,17 @@ class EVNDataUpdateCoordinator(DataUpdateCoordinator):
                 # Chỉ lưu san_luong ở đây
 
             if san_luong is not None:
+                # INSERT OR IGNORE: chỉ tạo hàng mới nếu chưa tồn tại (giữ nguyên tien_dien)
                 cursor.execute("""
-                    INSERT OR REPLACE INTO monthly_bill 
+                    INSERT OR IGNORE INTO monthly_bill 
                     (userevn, thang, nam, tien_dien, san_luong_kwh)
-                    VALUES (?, ?, ?, ?, ?)
-                """, (self.customer_id, month, year, tien_dien, san_luong))
+                    VALUES (?, ?, NULL, ?)
+                """, (self.customer_id, month, year, san_luong))
+                # UPDATE riêng san_luong_kwh: không bao giờ xóa tien_dien đã có từ hoadon
+                cursor.execute("""
+                    UPDATE monthly_bill SET san_luong_kwh = ?
+                    WHERE userevn = ? AND thang = ? AND nam = ?
+                """, (san_luong, self.customer_id, month, year))
 
             conn.commit()
             conn.close()
