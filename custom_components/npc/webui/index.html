@@ -183,6 +183,12 @@
                     <div class="flex flex-col md:flex-row items-center justify-between mb-4 gap-2">
                         <h3 class="text-base font-semibold">So Sánh Sản Lượng từng Năm</h3>
                         <div class="flex flex-wrap items-center gap-2">
+                            <div class="chart-controls flex items-center bg-gray-900 bg-opacity-50 rounded-lg p-0.5 border border-gray-700">
+                                <button id="compareBarBtn" class="control-btn active" title="Biểu đồ cột"><i class="fas fa-chart-bar"></i></button>
+                                <button id="compareLineBtn" class="control-btn" title="Biểu đồ đường"><i class="fas fa-chart-line"></i></button>
+                                <div class="w-px h-4 bg-gray-700 mx-1"></div>
+                                <button id="compareLabelBtn" class="control-btn" title="Bật/Tắt chỉ số"><i class="fas fa-tag"></i></button>
+                            </div>
                             <select id="compareAccountSelect" class="p-1 rounded bg-gray-800 text-white text-xs border-none outline-none cursor-pointer">
                                 <option value="all">Gộp Tất cả</option>
                                 <option value="multi">Hiện tất cả công tơ</option>

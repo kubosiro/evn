@@ -2616,3 +2616,43 @@ select option {
     overflow: hidden !important;
   }
 }
+
+/* Chart Controls */
+.chart-controls {
+    display: flex;
+    align-items: center;
+}
+
+.control-btn {
+    background: transparent;
+    border: none;
+    color: #888;
+    width: 28px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+    font-size: 0.75rem;
+}
+
+.control-btn:hover {
+    color: #e961ab;
+    background: rgba(233, 97, 171, 0.1);
+}
+
+.control-btn.active {
+    color: #fff;
+    background: #e961ab;
+    box-shadow: 0 0 8px rgba(233, 97, 171, 0.4);
+}
+
+@media (max-width: 640px) {
+    .control-btn {
+        width: 24px;
+        height: 20px;
+        font-size: 0.7rem;
+    }
+}
