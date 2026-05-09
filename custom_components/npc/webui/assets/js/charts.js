@@ -115,9 +115,9 @@ class ChartManager {
                         datalabels: {
                             display: true,
                             anchor: 'end',
-                            align: 'top',
+                            align: 'bottom', // Đưa nhãn vào trong cột
                             offset: 4,
-                            color: this.getCurrentThemeColors().textColor,
+                            color: '#ffffff', // Màu trắng để nổi bật trong cột
                             font: { weight: 'bold', size: isMobile ? 9 : 10 },
                             formatter: (val) => Math.round(val)
                         }
@@ -144,8 +144,8 @@ class ChartManager {
                         datalabels: {
                             display: true,
                             anchor: 'end',
-                            align: 'top',
-                            offset: 4,
+                            align: 'top', // Giữ nhãn ở trên đường
+                            offset: 6,
                             color: '#e961ab',
                             font: { weight: 'bold', size: isMobile ? 9 : 10 },
                             formatter: (val) => val >= 1000 ? (val/1000).toFixed(0) + 'k' : val
