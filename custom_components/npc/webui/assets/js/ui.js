@@ -498,6 +498,28 @@ class UIManager {
         }
     }
 
+    // Update active state of chart control buttons
+    updateChartControlButtons(type, showLabels) {
+        const barBtn = document.getElementById('compareBarBtn');
+        const lineBtn = document.getElementById('compareLineBtn');
+        const labelBtn = document.getElementById('compareLabelBtn');
+
+        if (barBtn) {
+            if (type === 'bar') barBtn.classList.add('active');
+            else barBtn.classList.remove('active');
+        }
+
+        if (lineBtn) {
+            if (type === 'line') lineBtn.classList.add('active');
+            else lineBtn.classList.remove('active');
+        }
+
+        if (labelBtn) {
+            if (showLabels) labelBtn.classList.add('active');
+            else labelBtn.classList.remove('active');
+        }
+    }
+
     // Detect if running inside Home Assistant frontend
     isHomeAssistantEnv() {
         try {

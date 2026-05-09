@@ -5,6 +5,9 @@ class ElectricityApp {
         this.chartManager = new ChartManager();
         this.uiManager = new UIManager();
         this.currentYear = new Date().getFullYear();
+        this.comparisonChartType = localStorage.getItem('comparisonChartType') || 'bar';
+        this.comparisonShowLabels = localStorage.getItem('comparisonShowLabels') === 'true';
+
 
         this.init();
     } async init() {
@@ -171,8 +174,12 @@ class ElectricityApp {
         this.chartManager.createComparisonChart(
             this.dataManager.allAccountsData || {},
             yearsToCompare,
-            accountMode
+            accountMode,
+            { type: this.comparisonChartType, showLabels: this.comparisonShowLabels }
         );
+
+        // Update active state of buttons
+        this.uiManager.updateChartControlButtons(this.comparisonChartType, this.comparisonShowLabels);
     }
 
     handleMonthlyChartClick(evt, elements) {
@@ -253,6 +260,34 @@ class ElectricityApp {
         if (compareYear2) {
             compareYear2.addEventListener('change', () => this.updateComparisonChart());
         }
+
+        // Comparison Chart Controls
+        const barBtn = document.getElementById('compareBarBtn');
+        const lineBtn = document.getElementById('compareLineBtn');
+        const labelBtn = document.getElementById('compareLabelBtn');
+
+        if (barBtn) {
+            barBtn.addEventListener('click', () => {
+                this.comparisonChartType = 'bar';
+                localStorage.setItem('comparisonChartType', 'bar');
+                this.updateComparisonChart();
+            });
+        }
+        if (lineBtn) {
+            lineBtn.addEventListener('click', () => {
+                this.comparisonChartType = 'line';
+                localStorage.setItem('comparisonChartType', 'line');
+                this.updateComparisonChart();
+            });
+        }
+        if (labelBtn) {
+            labelBtn.addEventListener('click', () => {
+                this.comparisonShowLabels = !this.comparisonShowLabels;
+                localStorage.setItem('comparisonShowLabels', this.comparisonShowLabels);
+                this.updateComparisonChart();
+            });
+        }
+
 
         // Month select change
         const monthSelect = document.getElementById('monthSelect');
